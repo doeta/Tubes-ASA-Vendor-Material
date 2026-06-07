@@ -88,9 +88,9 @@ if __name__ == "__main__":
     print(" Simulasi Proyek Pembangunan Gedung Bertingkat")
     print("=" * 80)
 
-    # Pilih fungsi load data yang diinginkan:
-    # 1. LoadProcessedData()      -> Data asli (15 Kategori Material)
-    # 2. GenerateMassiveData(50)  -> Uji beban ekstrim (50 Kategori)
+    # Load data
+    # 1. LoadProcessedData()      -> 25 Kategori
+    # 2. GenerateMassiveData(50)  -> Uji beban 50 Kategori
 
     Materials = LoadProcessedData()
     RabScaled = Settings.ScaledRab
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     Results = []
 
-    # === UJI DYNAMIC PROGRAMMING ===
+    # Run DP
     tracemalloc.start()
     Start = time.time()
     DpScore, DpPath = DpSolve(Materials, RabScaled)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     PrintResult("DYNAMIC PROGRAMMING", DpScore, DpPath, DpTime, DpMem)
     Results.append({"Name": "DP", "Score": DpScore, "Path": DpPath, "Time": DpTime, "Memory": DpMem})
 
-    # === UJI BRANCH AND BOUND ===
+    # Run BnB
     tracemalloc.start()
     Start = time.time()
     Bb = BranchAndBound(Materials, RabScaled)
@@ -120,10 +120,13 @@ if __name__ == "__main__":
     BbTime = time.time() - Start
     BbMem = tracemalloc.get_traced_memory()[1] / 1024
     tracemalloc.stop()
-    PrintResult("BRANCH AND BOUND", BbScore, BbPath, BbTime, BbMem)
+    BbLabel = "BRANCH AND BOUND"
+    if Bb.TimedOut:
+        BbLabel += f" (Timeout {Bb.TimeLimit}s, {Bb.NodeCount:,} nodes)"
+    PrintResult(BbLabel, BbScore, BbPath, BbTime, BbMem)
     Results.append({"Name": "B&B", "Score": BbScore, "Path": BbPath, "Time": BbTime, "Memory": BbMem})
 
-    # === UJI SIMULATED ANNEALING ===
+    # Run SA
     tracemalloc.start()
     Start = time.time()
     SaScore, SaPath = SaSolve(Materials, RabScaled)
@@ -133,5 +136,5 @@ if __name__ == "__main__":
     PrintResult("SIMULATED ANNEALING", SaScore, SaPath, SaTime, SaMem)
     Results.append({"Name": "SA", "Score": SaScore, "Path": SaPath, "Time": SaTime, "Memory": SaMem})
 
-    # === CETAK TABEL PERBANDINGAN ===
+    # Print perbandingan
     PrintComparisonTable(Results, Settings.DefaultRabReal)

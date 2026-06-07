@@ -10,7 +10,7 @@ def Solve(Materials, Rab):
         Cost = sum(v['Cost'] for v in State)
         Score = sum(v['WeightedScore'] for v in State)
         if Cost > Rab:
-            return Score - (Cost - Rab) * 1000 # Penalti jika over-budget
+            return Score - (Cost - Rab) * 1000 # kena penalti kalo over budget
         return Score
 
     CurrentState = [random.choice(Mat) for Mat in Materials]
